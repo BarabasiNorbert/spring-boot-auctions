@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -161,12 +163,16 @@ public class UserService {
 
     @Transactional
     public User getCurrentUser() {
-        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.
+       User principal = (User) SecurityContextHolder.
                 getContext().getAuthentication().getPrincipal();
-        return userRepository.findByEmail(principal.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User email not found - " + principal.getUsername()));
+        return userRepository.findByEmail(principal.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User email not found - " + principal.getEmail()));
     }
 
+    public boolean isLoggedIn() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
+    }
 
     //ON DELETE cascade(foreign keys) - ConstraintViolationException
     @Scheduled(cron = "0 0 1 * * ?")//At 01:00 am everyday.

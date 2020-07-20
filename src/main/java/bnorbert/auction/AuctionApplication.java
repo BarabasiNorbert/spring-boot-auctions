@@ -26,12 +26,12 @@ import java.util.List;
 @SpringBootApplication
 public class AuctionApplication {//implements CommandLineRunner {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AuctionApplication.class);
-	private final HomeRepository homeRepository;
-
-	public AuctionApplication(HomeRepository homeRepository) {
-		this.homeRepository = homeRepository;
-	}
+	//private static final Logger LOGGER = LoggerFactory.getLogger(AuctionApplication.class);
+	//private final HomeRepository homeRepository;
+//
+	//public AuctionApplication(HomeRepository homeRepository) {
+	//	this.homeRepository = homeRepository;
+	//}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AuctionApplication.class, args);

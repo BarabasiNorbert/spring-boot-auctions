@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -139,6 +140,13 @@ class UserServiceTest {
 
         final User result = userServiceUnderTest.getCurrentUser();
         assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void testIsLoggedIn() {
+
+        final boolean result = userServiceUnderTest.isLoggedIn();
+        assertTrue(result);
     }
 
     @Test
