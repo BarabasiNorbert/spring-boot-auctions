@@ -1,13 +1,18 @@
 package bnorbert.auction.domain;
 
+import org.optaplanner.core.api.domain.entity.PlanningEntity;
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+import org.optaplanner.core.api.domain.variable.PlanningVariable;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "homes")
+@PlanningEntity
 //#foreclosedhomes
 public class Home {
 
-    @Id
+    @PlanningId @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String neighborhood;
@@ -20,6 +25,14 @@ public class Home {
     private int garageCars;
     private int garageArea;
     private double startingPrice;
+
+    @PlanningVariable(valueRangeProviderRefs = "timeSlotRange")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private TimeSlot timeSlot;
+
+    @PlanningVariable(valueRangeProviderRefs = "roomRange")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Room room;
 
     public Home() {
     }
@@ -125,6 +138,22 @@ public class Home {
 
     public void setStartingPrice(double startingPrice) {
         this.startingPrice = startingPrice;
+    }
+
+    public TimeSlot getTimeSlot() {
+        return timeSlot;
+    }
+
+    public void setTimeSlot(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     @Override

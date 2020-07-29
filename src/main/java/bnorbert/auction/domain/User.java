@@ -41,6 +41,15 @@ public class User  {
         verificationToken.setUser(this);
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<TimeSlot> timeSlots = new HashSet<>();
+
+    public void addTimeSlot(TimeSlot timeSlot) {
+        timeSlots.add(timeSlot);
+        timeSlot.setUser(this);
+    }
+
     public User() {
     }
 
@@ -140,6 +149,14 @@ public class User  {
 
     public void setCreatedDate(Instant createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public Set<TimeSlot> getTimeSlots() {
+        return timeSlots;
+    }
+
+    public void setTimeSlots(Set<TimeSlot> timeSlots) {
+        this.timeSlots = timeSlots;
     }
 
     @Override
