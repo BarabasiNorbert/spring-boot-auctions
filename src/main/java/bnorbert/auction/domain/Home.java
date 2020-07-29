@@ -126,4 +126,17 @@ public class Home {
     public void setStartingPrice(double startingPrice) {
         this.startingPrice = startingPrice;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Home that = (Home) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 }
