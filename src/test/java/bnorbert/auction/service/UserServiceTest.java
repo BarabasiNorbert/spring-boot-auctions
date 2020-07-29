@@ -8,6 +8,9 @@ import bnorbert.auction.transfer.user.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.Instant;
 import java.util.Collections;
@@ -15,8 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class UserServiceTest {
@@ -27,13 +29,15 @@ class UserServiceTest {
     private PasswordEncoder mockPasswordEncoder;
     @Mock
     private VerificationTokenRepository mockVerificationTokenRepository;
+    @Mock
+    private JavaMailSender mockMailSender;
 
     private UserService userServiceUnderTest;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        userServiceUnderTest = new UserService(mockUserRepository, mockPasswordEncoder, mockVerificationTokenRepository);
+        userServiceUnderTest = new UserService(mockUserRepository, mockPasswordEncoder, mockVerificationTokenRepository, mockMailSender);
     }
 
     @Test
@@ -47,6 +51,25 @@ class UserServiceTest {
         when(mockUserRepository.findByEmail("email")).thenReturn(Optional.of(new User()));
         when(mockPasswordEncoder.encode("charSequence")).thenReturn("result");
         when(mockUserRepository.save(new User())).thenReturn(new User());
+
+        final UserResponse result = userServiceUnderTest.createUser(request);
+
+        verify(mockMailSender).send(new SimpleMailMessage());
+    }
+
+    @Test
+    void testCreateUser_JavaMailSenderThrowsMailException() {
+
+        final SaveUserRequest request = new SaveUserRequest();
+        request.setEmail("email@gmail.com");
+        request.setPassword("password");
+        request.setPasswordConfirm("password");
+
+        when(mockUserRepository.findByEmail("email@gmail.com")).thenReturn(Optional.of(new User()));
+        when(mockPasswordEncoder.encode("charSequence")).thenReturn("result");
+        doThrow(MailException.class).when(mockMailSender).send(new SimpleMailMessage());
+        when(mockUserRepository.save(new User())).thenReturn(new User());
+
 
         final UserResponse result = userServiceUnderTest.createUser(request);
     }

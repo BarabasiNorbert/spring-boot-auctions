@@ -24,17 +24,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-class BitControllerTest {
+class BidControllerTest {
 
     @Mock
     private BidService mockBidService;
 
-    private BitController bitControllerUnderTest;
+    private BidController bidControllerUnderTest;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        bitControllerUnderTest = new BitController(mockBidService);
+        bidControllerUnderTest = new BidController(mockBidService);
     }
 
     @Test
@@ -44,7 +44,7 @@ class BitControllerTest {
         bidDto.setAmount(1000.0);
         bidDto.setTimeSlotId(1L);
 
-        final ResponseEntity<Void> result = bitControllerUnderTest.createBid(bidDto);
+        final ResponseEntity<Void> result = bidControllerUnderTest.createBid(bidDto);
 
 
         verify(mockBidService).save(any(BidDto.class));
@@ -66,7 +66,7 @@ class BitControllerTest {
         bidResponse.setNeighborhood("neighborhood");
         when(mockBidService.getWinner(1L)).thenReturn(bidResponse);
 
-        final ResponseEntity<BidResponse> result = bitControllerUnderTest.getWinner(1L);
+        final ResponseEntity<BidResponse> result = bidControllerUnderTest.getWinner(1L);
 
     }
 
@@ -88,7 +88,7 @@ class BitControllerTest {
         when(mockBidService.getBidsByTimeSlot(eq(1L), any(Pageable.class))).thenReturn(getBidsResponses);
 
 
-        final ResponseEntity<Page<GetBidsResponse>> result = bitControllerUnderTest.getBids(0L, PageRequest.of(0, 1));
+        final ResponseEntity<Page<GetBidsResponse>> result = bidControllerUnderTest.getBids(0L, PageRequest.of(0, 1));
 
     }
 
@@ -110,7 +110,7 @@ class BitControllerTest {
         when(mockBidService.getBidsByHomeId(1L)).thenReturn(getBidsResponses);
 
 
-        final ResponseEntity<List<GetBidsResponse>> result = bitControllerUnderTest.getBidsByHomeId(1L);
+        final ResponseEntity<List<GetBidsResponse>> result = bidControllerUnderTest.getBidsByHomeId(1L);
 
     }
 }

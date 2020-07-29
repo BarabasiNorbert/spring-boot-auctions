@@ -11,6 +11,8 @@ import bnorbert.auction.transfer.user.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,13 +32,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final JavaMailSender mailSender;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       VerificationTokenRepository verificationTokenRepository) {
+                       VerificationTokenRepository verificationTokenRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.verificationTokenRepository = verificationTokenRepository;
+        this.mailSender = mailSender;
     }
 
     private boolean emailExists(final String email){
@@ -59,6 +63,12 @@ public class UserService {
         VerificationToken verificationToken = new VerificationToken(user);
         user.addToken(verificationToken);
 
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom("localhost");
+        mailMessage.setTo(request.getEmail());
+        mailMessage.setText(verificationToken.getVerificationToken());
+
+        mailSender.send(mailMessage);
 
         User savedUser = userRepository.save(user);
         return mapUserResponse(savedUser);

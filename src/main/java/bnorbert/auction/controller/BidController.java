@@ -18,10 +18,10 @@ import static org.springframework.http.ResponseEntity.status;
 @CrossOrigin
 @RestController
 @RequestMapping("/bids")
-public class BitController {
+public class BidController {
     private final BidService bidService;
 
-    public BitController(BidService bidService) {
+    public BidController(BidService bidService) {
         this.bidService = bidService;
     }
 
