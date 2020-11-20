@@ -16,7 +16,7 @@ public abstract class TimeSlotMapper {
     @Mapping(target = "dayOfWeek", source = "timeSlot.dayOfWeek")
     @Mapping(target = "startTime", source = "timeSlot.startTime")
     @Mapping(target = "endTime", source = "timeSlot.endTime")
-    public abstract TimeSlotsResponse mapToDto(TimeSlot timeSlot);
+    public abstract TimeSlotsResponse mapToTimeSlotResponse(TimeSlot timeSlot);
 
     public abstract List<TimeSlotsResponse> entitiesToEntityDTOs(List<TimeSlot> timeSlots);
 }

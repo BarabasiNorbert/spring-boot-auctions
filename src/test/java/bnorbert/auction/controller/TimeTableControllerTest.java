@@ -45,9 +45,15 @@ class TimeTableControllerTest {
 
     @Test
     void testSolve() {
-        when(mockSolverManager.solveAndListen(eq(1L), any(Function.class), any(Consumer.class))).thenReturn(null);
+        when(mockSolverManager.solveAndListen(eq(1L),
+                any(Function.class),
+                any(Consumer.class))).thenReturn(null);
 
-        final TimeTable timeTable = new TimeTable(Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0))), Arrays.asList(new Room("name")), Arrays.asList(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
+        final TimeTable timeTable = new TimeTable(Collections.singletonList(
+                new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0))),
+                Arrays.asList(new Room("name")),
+                Collections.singletonList(new Home(0L, "neighborhood", 0, 0, "yearBuilt",
+                        0, 0, "garageYearBuilt", 0, 0, 0)));
         when(mockTimeTableService.findById(1L)).thenReturn(timeTable);
 
         timeTableControllerUnderTest.solve();
@@ -67,7 +73,11 @@ class TimeTableControllerTest {
     void testGetTimeTable() {
         when(mockSolverManager.getSolverStatus(1L)).thenReturn(SolverStatus.SOLVING_SCHEDULED);
 
-        final TimeTable timeTable = new TimeTable(Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0))), Arrays.asList(new Room("name")), Arrays.asList(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
+        final TimeTable timeTable = new TimeTable(Collections.singletonList(
+                new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0))),
+                Collections.singletonList(new Room("name")),
+                Collections.singletonList(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0,
+                        0, "garageYearBuilt", 0, 0, 0)));
         when(mockTimeTableService.findById(1L)).thenReturn(timeTable);
 
         when(mockScoreManager.updateScore(any(TimeTable.class))).thenReturn(null);

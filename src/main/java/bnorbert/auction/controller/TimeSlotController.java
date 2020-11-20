@@ -23,9 +23,9 @@ public class TimeSlotController {
     }
 
     @GetMapping("/getTimeSlots")
-    public ResponseEntity<Page<TimeSlotsResponse>> getTimeSlots(
+    public ResponseEntity<Page<TimeSlotsResponse>> getTimeSlotsWithBids(
             Pageable pageable) {
-        Page<TimeSlotsResponse> timeSlot = timeSlotService.getTimeSlots(pageable);
+        Page<TimeSlotsResponse> timeSlot = timeSlotService.getTimeSlotsWithBids(pageable);
         return new ResponseEntity<>(timeSlot, HttpStatus.OK);
     }
 

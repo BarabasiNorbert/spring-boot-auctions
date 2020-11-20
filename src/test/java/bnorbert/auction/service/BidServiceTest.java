@@ -1,9 +1,6 @@
 package bnorbert.auction.service;
 
-import bnorbert.auction.domain.Bid;
-import bnorbert.auction.domain.Home;
-import bnorbert.auction.domain.TimeSlot;
-import bnorbert.auction.domain.User;
+import bnorbert.auction.domain.*;
 import bnorbert.auction.mapper.BidMapper;
 import bnorbert.auction.repository.BidRepository;
 import bnorbert.auction.repository.TimeSlotRepository;
@@ -18,19 +15,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class BidServiceTest {
+
 
     @Mock
     private TimeSlotService mockTimeSlotService;
@@ -39,194 +35,271 @@ class BidServiceTest {
     @Mock
     private BidMapper mockBidMapper;
     @Mock
-    private UserService mockAuthService;
+    private UserService mockUserService;
     @Mock
     private BidRepository mockBidRepository;
     @Mock
     private TimeSlotRepository mockTimeSlotRepository;
+    @Mock
+    private AccountService mockAccountService;
+
 
     private BidService bidServiceUnderTest;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        bidServiceUnderTest = new BidService(mockTimeSlotService, mockHomeService, mockBidMapper, mockAuthService, mockBidRepository, mockTimeSlotRepository);
+        bidServiceUnderTest = new BidService(mockTimeSlotService, mockHomeService, mockBidMapper, mockUserService, mockBidRepository, mockTimeSlotRepository, mockAccountService);
     }
 
     @Test
-    void testSave() {
+    void testCreateBidOnTheFirstHomeFromThatTimeslot() {
 
-        final BidDto bidDto = new BidDto();
-        bidDto.setAmount(10.0);
-        bidDto.setTimeSlotId(1L);
+        BidDto request = new BidDto();
+        request.setAmount(500000);
+        request.setTimeSlotId(1L);
 
-        when(mockAuthService.isLoggedIn()).thenReturn(false);
+        when(mockUserService.isLoggedIn()).thenReturn(true);
+
+        User user = new User();
+        user.setId(1L);
+
+        Account account = new Account();
+        account.setId("iban");
+        account.setBalance(900000L);
+        account.setFirstName("firstName");
+        account.setLastName("lastName");
+        account.setUser(user);
+        account.setTransactionCount(1);
+        when(mockAccountService.getDueDiligence(1L)).thenReturn(account);
 
 
-        final TimeSlot timeSlot = new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0));
+        TimeSlot timeSlot = new TimeSlot(DayOfWeek.MONDAY, LocalTime.of(9, 0, 0),
+                LocalTime.of(12, 0, 0));
         when(mockTimeSlotService.getTimeSlot(1L)).thenReturn(timeSlot);
 
-
-        final Home home = new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 9.0);
+        Home home = new Home
+                (1L, "neighborhood", 1, 8006, "yearBuilt", 1, 1,
+                        "garageYearBuilt", 2, 567, 100000);
         when(mockHomeService.getHome(1L)).thenReturn(home);
 
-        when(mockAuthService.getCurrentUser()).thenReturn(new User());
+        when(mockUserService.getCurrentUser()).thenReturn(user);
 
-
-        final Bid bid = new Bid();
+        Bid bid = new Bid();
         bid.setId(1L);
-        bid.setAmount(10.0);
-        bid.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
-        bid.setUser(new User());
-        bid.setHome(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        bid.setCreatedDate(Instant.ofEpochSecond(0L));
-        when(mockBidMapper.map(any(BidDto.class), eq(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of
-                (12, 0, 0), LocalTime.of(12, 0, 0))), eq(new User()), eq(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 9.0)))).thenReturn(bid);
+        bid.setAmount(500000);
+        bid.setTimeSlot(timeSlot);
+        bid.setUser(user);
+        bid.setHome(home);
 
+        bid.setCreatedDate(Instant.now());
+        when(mockBidMapper.map(any(BidDto.class), any(TimeSlot.class), eq(user),
+                eq(home))).thenReturn(bid);
 
-        final Bid bid1 = new Bid();
-        bid1.setId(1L);
-        bid1.setAmount(20.0);
-        bid1.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
-        bid1.setUser(new User());
-        bid1.setHome(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 9.0));
-        bid1.setCreatedDate(Instant.ofEpochSecond(0L));
-        when(mockBidRepository.save(new Bid())).thenReturn(bid1);
+        when(mockTimeSlotRepository.save(any(TimeSlot.class))).thenReturn(timeSlot);
 
-
-        final TimeSlot timeSlot1 = new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0));
-        when(mockTimeSlotRepository.save(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)))).thenReturn(timeSlot1);
-
-
-        bidServiceUnderTest.save(bidDto);
+        bidServiceUnderTest.bidOnTheFirstHomeFromThatTimeslot(request);
     }
 
     @Test
-    void testGetWinnerThenReturnResourceNotFoundException() {
+    void testCreateBidOnTheFirstHomeFromThatTimeslotBelowStartingPrice() {
 
-        final Bid bid1 = new Bid();
-        bid1.setId(1L);
-        bid1.setAmount(10.0);
-        bid1.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
-        bid1.setUser(new User());
-        bid1.setHome(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        bid1.setCreatedDate(Instant.ofEpochSecond(0L));
-        final Optional<Bid> bid = Optional.of(bid1);
-        when(mockBidRepository.findTop1ByTimeSlot_IdOrderByAmountDesc(1L)).thenReturn(bid);
+        BidDto request = new BidDto();
+        request.setAmount(500000);
+        request.setTimeSlotId(1L);
 
+        when(mockUserService.isLoggedIn()).thenReturn(true);
 
-        final BidResponse bidResponse = new BidResponse();
-        bidResponse.setId(0L);
-        bidResponse.setEmail("email");
-        bidResponse.setAmount(0.0);
-        bidResponse.setUserId(0L);
-        bidResponse.setTimeSlotId(0L);
-        bidResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        bidResponse.setStartTime(LocalTime.of(12, 0, 0));
-        bidResponse.setEndTime(LocalTime.of(12, 0, 0));
-        bidResponse.setHomeId(0L);
-        bidResponse.setNeighborhood("neighborhood");
-        when(mockBidMapper.mapToDto(new Bid())).thenReturn(bidResponse);
+        User user = new User();
+        user.setId(1L);
 
+        TimeSlot timeSlot = new TimeSlot(DayOfWeek.MONDAY, LocalTime.of(9, 0, 0),
+                LocalTime.of(12, 0, 0));
+        when(mockTimeSlotService.getTimeSlot(1L)).thenReturn(timeSlot);
 
-        final BidResponse result = bidServiceUnderTest.getWinner(0L);
+        Home home = new Home
+                (1L, "neighborhood", 1, 0, "yearBuilt", 1, 1,
+                        "garageYearBuilt", 2, 0, 1000000);
+        when(mockHomeService.getHome(1L)).thenReturn(home);
 
+        when(mockUserService.getCurrentUser()).thenReturn(user);
+
+        Bid bid = new Bid();
+        bid.setId(1L);
+        bid.setAmount(500000);
+        bid.setTimeSlot(timeSlot);
+        bid.setUser(user);
+        bid.setHome(home);
+
+        bid.setCreatedDate(Instant.now());
+        when(mockBidMapper.map(any(BidDto.class), any(TimeSlot.class), eq(user),
+                eq(home))).thenReturn(bid);
+
+        when(mockTimeSlotRepository.save(any(TimeSlot.class))).thenReturn(timeSlot);
+
+        bidServiceUnderTest.bidOnTheFirstHomeFromThatTimeslot(request);
     }
-
 
     @Test
     void testGetWinner() {
 
-        final Bid bid1 = new Bid();
-        bid1.setId(0L);
-        bid1.setAmount(0.0);
-        bid1.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
-        bid1.setUser(new User());
-        bid1.setHome(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        bid1.setCreatedDate(Instant.ofEpochSecond(0L));
-        final Optional<Bid> bid = Optional.of(bid1);
-        when(mockBidRepository.findTop1ByTimeSlot_IdOrderByAmountDesc(0L)).thenReturn(bid);
+        User user = new User();
+        user.setId(1L);
 
+        Home home = new Home
+                (1L, "neighborhood", 1, 0, "yearBuilt", 1, 1,
+                        "garageYearBuilt", 2, 0, 1);
+        when(mockHomeService.getHome(1L)).thenReturn(home);
+
+        Bid bid1 = new Bid();
+        bid1.setId(1L);
+        bid1.setAmount(40000);
+        bid1.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(6, 0, 0),
+                LocalTime.of(12, 0, 0)));
+        bid1.setUser(new User());
+        bid1.setHome(home);
+        bid1.setCreatedDate(Instant.now());
+        final Optional<Bid> bid = Optional.of(bid1);
+        when(mockBidRepository.findTop1ByTimeSlot_IdOrderByAmountDesc(1L)).thenReturn(bid);
 
         final BidResponse bidResponse = new BidResponse();
-        bidResponse.setId(0L);
+        bidResponse.setId(1L);
         bidResponse.setEmail("email");
-        bidResponse.setAmount(0.0);
-        bidResponse.setUserId(0L);
-        bidResponse.setTimeSlotId(0L);
+        bidResponse.setAmount(5000);
+        bidResponse.setUserId(user.getId());
+        bidResponse.setTimeSlotId(1L);
         bidResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        bidResponse.setStartTime(LocalTime.of(12, 0, 0));
+        bidResponse.setStartTime(LocalTime.of(6, 0, 0));
         bidResponse.setEndTime(LocalTime.of(12, 0, 0));
-        bidResponse.setHomeId(0L);
+        bidResponse.setHomeId(home.getId());
         bidResponse.setNeighborhood("neighborhood");
-        when(mockBidMapper.mapToDto(new Bid())).thenReturn(bidResponse);
+        when(mockBidMapper.mapToBidResponse(any(Bid.class))).thenReturn(bidResponse);
 
-        final BidResponse result = bidServiceUnderTest.getWinner(0L);
-
+        final BidResponse result = bidServiceUnderTest.getWinner(1L);
 
     }
 
     @Test
     void testGetBidsByTimeSlot() {
 
-        final Bid bid = new Bid();
-        bid.setId(0L);
-        bid.setAmount(0.0);
-        bid.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
-        bid.setUser(new User());
-        bid.setHome(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        bid.setCreatedDate(Instant.ofEpochSecond(0L));
-        final Page<Bid> bids = new PageImpl<>(Collections.singletonList(bid));
-        when(mockBidRepository.findBidsByTimeSlot_IdOrderByAmountDesc(eq(0L), any(Pageable.class))).thenReturn(bids);
+        User user = new User();
+        user.setId(1L);
 
+        Home home = new Home
+                (1L, "neighborhood", 1, 0, "yearBuilt", 1, 1,
+                        "garageYearBuilt", 2, 0, 1);
+        when(mockHomeService.getHome(1L)).thenReturn(home);
+
+        final Bid bid = new Bid();
+        bid.setId(1L);
+        bid.setAmount(2);
+        bid.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(11, 0, 0),
+                LocalTime.of(12, 0, 0)));
+        bid.setUser(user);
+        bid.setHome(home);
+        bid.setCreatedDate(Instant.ofEpochSecond(1L));
+        final Page<Bid> bids = new PageImpl<>(Collections.singletonList(bid));
+        when(mockBidRepository.findBidsByTimeSlot_IdOrderByAmountDesc(eq(1L), any(Pageable.class))).thenReturn(bids);
 
         final GetBidsResponse getBidsResponse = new GetBidsResponse();
-        getBidsResponse.setId(0L);
+        getBidsResponse.setId(1L);
         getBidsResponse.setEmail("email");
-        getBidsResponse.setAmount(0.0);
-        getBidsResponse.setUserId(0L);
+        getBidsResponse.setAmount(bid.getAmount());
+        getBidsResponse.setUserId(user.getId());
         getBidsResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        getBidsResponse.setStartTime(LocalTime.of(12, 0, 0));
+        getBidsResponse.setStartTime(LocalTime.of(11, 0, 0));
         getBidsResponse.setEndTime(LocalTime.of(12, 0, 0));
-        getBidsResponse.setHomeId(0L);
+        getBidsResponse.setHomeId(home.getId());
         getBidsResponse.setNeighborhood("neighborhood");
-        getBidsResponse.setKitchen(0);
+        getBidsResponse.setKitchen(1);
         final List<GetBidsResponse> getBidsResponses = Collections.singletonList(getBidsResponse);
-        when(mockBidMapper.entitiesToEntityDTOs(Collections.singletonList(new Bid()))).thenReturn(getBidsResponses);
+        when(mockBidMapper.entitiesToEntityDTOs(Collections.singletonList(bid))).thenReturn(getBidsResponses);
 
-
-        final Page<GetBidsResponse> result = bidServiceUnderTest.getBidsByTimeSlot(0L, PageRequest.of(0, 1));
-        verify(mockBidRepository).findTop1ByTimeSlot_IdOrderByAmountDesc(anyLong());
-        verify(mockBidMapper).mapToDto(any(Bid.class));
+        final Page<GetBidsResponse> result = bidServiceUnderTest.getBidsByTimeSlot(1L, PageRequest.of(0, 1));
     }
 
     @Test
     void testGetBidsByHomeId() {
 
+        User user = new User();
+        user.setId(1L);
+
+        Home home = new Home
+                (1L, "neighborhood", 1, 0, "yearBuilt", 1, 1,
+                        "garageYearBuilt", 2, 0, 1);
+        when(mockHomeService.getHome(1L)).thenReturn(home);
+
         final Bid bid = new Bid();
-        bid.setId(0L);
-        bid.setAmount(0.0);
-        bid.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
-        bid.setUser(new User());
-        bid.setHome(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        bid.setCreatedDate(Instant.ofEpochSecond(0L));
+        bid.setId(1L);
+        bid.setAmount(500);
+        bid.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(10, 0, 0),
+                LocalTime.of(12, 0, 0)));
+        bid.setUser(user);
+        bid.setHome(home);
+        bid.setCreatedDate(Instant.ofEpochSecond(1L));
         final List<Bid> bids = Collections.singletonList(bid);
-        when(mockBidRepository.findBidsByHome_IdOrderByAmountDesc(0L)).thenReturn(bids);
+        when(mockBidRepository.findBidsByHome_IdOrderByAmountDesc(home.getId())).thenReturn(bids);
+
 
         final GetBidsResponse getBidsResponse = new GetBidsResponse();
-        getBidsResponse.setId(0L);
+        getBidsResponse.setId(bid.getId());
         getBidsResponse.setEmail("email");
-        getBidsResponse.setAmount(0.0);
-        getBidsResponse.setUserId(0L);
+        getBidsResponse.setAmount(bid.getAmount());
+        getBidsResponse.setUserId(user.getId());
         getBidsResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        getBidsResponse.setStartTime(LocalTime.of(12, 0, 0));
+        getBidsResponse.setStartTime(LocalTime.of(10, 0, 0));
         getBidsResponse.setEndTime(LocalTime.of(12, 0, 0));
-        getBidsResponse.setHomeId(0L);
+        getBidsResponse.setHomeId(home.getId());
         getBidsResponse.setNeighborhood("neighborhood");
-        getBidsResponse.setKitchen(0);
-        when(mockBidMapper.mapToDto2(new Bid())).thenReturn(getBidsResponse);
+        getBidsResponse.setKitchen(1);
+        when(mockBidMapper.mapToBidsResponse(any(Bid.class))).thenReturn(getBidsResponse);
 
-        final List<GetBidsResponse> result = bidServiceUnderTest.getBidsByHomeId(0L);
-
+        final List<GetBidsResponse> result = bidServiceUnderTest.getBidsByHomeId(home.getId());
     }
+
+
+    @Test
+    void testGetWinnerPageable() {
+
+        User user = new User();
+        user.setId(1L);
+
+        Home home = new Home
+                (1L, "neighborhood", 1, 0, "yearBuilt", 1, 1,
+                        "garageYearBuilt", 2, 0, 1);
+        when(mockHomeService.getHome(1L)).thenReturn(home);
+
+
+        final Bid bid = new Bid();
+        bid.setId(1L);
+        bid.setAmount(2);
+        bid.setTimeSlot(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(11, 0, 0),
+                LocalTime.of(12, 0, 0)));
+        bid.setUser(user);
+        bid.setHome(home);
+        bid.setCreatedDate(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
+                .toInstant(ZoneOffset.UTC));
+        final Page<Bid> bids = new PageImpl<>(Collections.singletonList(bid));
+        when(mockBidRepository.findTop1ByTimeSlot_IdOrderByAmountDesc(eq(1L), any(Pageable.class))).thenReturn(bids);
+
+        final BidResponse bidResponse = new BidResponse();
+        bidResponse.setId(bid.getId());
+        bidResponse.setEmail("email");
+        bidResponse.setAmount(bid.getAmount());
+        bidResponse.setUserId(user.getId());
+        bidResponse.setTimeSlotId(1L);
+        bidResponse.setDayOfWeek(DayOfWeek.FRIDAY);
+        bidResponse.setStartTime(LocalTime.of(11, 0, 0));
+        bidResponse.setEndTime(LocalTime.of(12, 0, 0));
+        bidResponse.setHomeId(home.getId());
+        bidResponse.setNeighborhood("neighborhood");
+        when(mockBidMapper.mapToBidResponse(any(Bid.class))).thenReturn(bidResponse);
+
+        final Page<BidResponse> result = bidServiceUnderTest.getWinnerPageable(1L);
+    }
+
+
+
 }
+
+

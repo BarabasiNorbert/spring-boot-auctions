@@ -34,7 +34,7 @@ public class TimeSlotService {
     }
 
     @Transactional
-    public Page<TimeSlotsResponse> getTimeSlots(Pageable pageable){
+    public Page<TimeSlotsResponse> getTimeSlotsWithBids(Pageable pageable){
         Page<TimeSlot> timeSlots = timeSlotRepository.findTimeSlotsByUserIsNotNull(pageable);
         List<TimeSlotsResponse> timeSlotsResponses = timeSlotMapper.entitiesToEntityDTOs(timeSlots.getContent());
         return new PageImpl<>(timeSlotsResponses, pageable, timeSlots.getTotalElements());

@@ -40,7 +40,7 @@ class AccountControllerTest {
     void testOpenAccount() {
 
         final AccountDto accountDto = new AccountDto();
-        accountDto.setBalance(100000.0);
+        accountDto.setBalance(1000000);
         accountDto.setFirstName("firstName");
         accountDto.setLastName("lastName");
 
@@ -54,7 +54,7 @@ class AccountControllerTest {
         final TransactionDto transactionDto = new TransactionDto();
         transactionDto.setTransactionType(TransactionType.WITHDRAWAL);
         transactionDto.setAccountId("accountId");
-        transactionDto.setAmount(10000.0);
+        transactionDto.setAmount(100000);
 
         final ResponseEntity<Void> result = accountControllerUnderTest.funds(transactionDto);
 
@@ -66,7 +66,7 @@ class AccountControllerTest {
         final TransferDto transferDto = new TransferDto();
         transferDto.setTransactionType(TransactionType.WITHDRAWAL);
         transferDto.setAccountId("accountId");
-        transferDto.setAmount(10000.0);
+        transferDto.setAmount(100000);
         transferDto.setTransferToAccountId("transferToAccountId");
 
         final ResponseEntity<Void> result = accountControllerUnderTest.transfer(transferDto);
@@ -79,7 +79,7 @@ class AccountControllerTest {
     void testGetTransactions() {
 
         final TransactionsResponse transactionsResponse = new TransactionsResponse();
-        transactionsResponse.setAmount(100000.0);
+        transactionsResponse.setAmount(1000000);
         transactionsResponse.setDescription("description");
         transactionsResponse.setTransactionType(TransactionType.WITHDRAWAL);
         transactionsResponse.setTransferToAccountId("transferToAccountId");

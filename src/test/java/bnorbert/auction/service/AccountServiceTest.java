@@ -53,21 +53,23 @@ class AccountServiceTest {
     @Test
     void testOpenAccount() {
         final AccountDto accountDto = new AccountDto();
-        accountDto.setBalance(100000.0);
+        accountDto.setBalance(100000);
         accountDto.setFirstName("firstName");
         accountDto.setLastName("lastName");
 
+        User user = new User();
+        user.setId(1L);
 
         final Account account = new Account();
-        account.setId("id");
-        account.setBalance(100000.0);
+        account.setId("iban");
+        account.setBalance(100000);
         account.setFirstName("firstName");
         account.setLastName("lastName");
-        account.setUser(new User());
-        account.setTransactionCount(0);
-        when(mockAccountMapper.map(any(AccountDto.class), eq(new User()))).thenReturn(account);
+        account.setUser(user);
+        account.setTransactionCount(1);
+        when(mockAccountMapper.map(any(AccountDto.class), eq(user))).thenReturn(account);
 
-        when(mockAuthService.getCurrentUser()).thenReturn(new User());
+        when(mockAuthService.getCurrentUser()).thenReturn(user);
 
         accountServiceUnderTest.openAccount(accountDto);
     }
@@ -78,28 +80,31 @@ class AccountServiceTest {
         final TransactionDto transactionDto = new TransactionDto();
         transactionDto.setTransactionType(TransactionType.WITHDRAWAL);
         transactionDto.setAccountId("id");
-        transactionDto.setAmount(200.0);
+        transactionDto.setAmount(200);
+
+        User user = new User();
+        user.setId(1L);
 
         final Account account1 = new Account();
         account1.setId("id");
-        account1.setBalance(2000.0);
+        account1.setBalance(2000);
         account1.setFirstName("firstName");
         account1.setLastName("lastName");
         account1.setUser(new User());
-        account1.setTransactionCount(0);
+        account1.setTransactionCount(1);
         final Optional<Account> account = Optional.of(account1);
-        when(mockAccountRepository.findById("id")).thenReturn(account);
+        when(mockAccountRepository.findById(account1.getId())).thenReturn(account);
 
         final Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setAccount(account1);
-        transaction.setAmount(200.0);
+        transaction.setAmount(200);
         transaction.setDescription("description");
         transaction.setTransactionType(TransactionType.WITHDRAWAL);
-        transaction.setUser(new User());
-        when(mockTransactionMapper.map(any(TransactionDto.class), any(Account.class), eq(new User()))).thenReturn(transaction);
+        transaction.setUser(user);
+        when(mockTransactionMapper.map(any(TransactionDto.class), any(Account.class), eq(user))).thenReturn(transaction);
 
-        when(mockAuthService.getCurrentUser()).thenReturn(new User());
+        when(mockAuthService.getCurrentUser()).thenReturn(user);
 
         accountServiceUnderTest.depositOrWithdraw(transactionDto);
     }
@@ -111,14 +116,17 @@ class AccountServiceTest {
         final TransactionDto transactionDto = new TransactionDto();
         transactionDto.setTransactionType(TransactionType.DEPOSIT);
         transactionDto.setAccountId("id");
-        transactionDto.setAmount(100.0);
+        transactionDto.setAmount(100);
+
+        User user = new User();
+        user.setId(1L);
 
         final Account account1 = new Account();
         account1.setId("id");
-        account1.setBalance(1000.0);
+        account1.setBalance(1000);
         account1.setFirstName("firstName");
         account1.setLastName("lastName");
-        account1.setUser(new User());
+        account1.setUser(user);
         account1.setTransactionCount(1);
         final Optional<Account> account = Optional.of(account1);
         when(mockAccountRepository.findById("id")).thenReturn(account);
@@ -126,13 +134,13 @@ class AccountServiceTest {
         final Transaction transaction = new Transaction();
         transaction.setId(1L);
         transaction.setAccount(account1);
-        transaction.setAmount(100.0);
+        transaction.setAmount(100);
         transaction.setDescription("description");
         transaction.setTransactionType(TransactionType.DEPOSIT);
-        transaction.setUser(new User());
-        when(mockTransactionMapper.map(any(TransactionDto.class), any(Account.class), eq(new User()))).thenReturn(transaction);
+        transaction.setUser(user);
+        when(mockTransactionMapper.map(any(TransactionDto.class), any(Account.class), eq(user))).thenReturn(transaction);
 
-        when(mockAuthService.getCurrentUser()).thenReturn(new User());
+        when(mockAuthService.getCurrentUser()).thenReturn(user);
 
         accountServiceUnderTest.depositOrWithdraw(transactionDto);
     }
@@ -140,42 +148,46 @@ class AccountServiceTest {
 
     @Test
     void testTransfer() {
-        final TransferDto transferDto = new TransferDto();
-        transferDto.setTransactionType(TransactionType.TRANSFER);
-        transferDto.setAccountId("1");
-        transferDto.setAmount(100.0);
-        transferDto.setTransferToAccountId("2");
+        User user = new User();
+        user.setId(1L);
 
         final Account account1 = new Account();
         account1.setId("1");
-        account1.setBalance(1000.0);
+        account1.setBalance(1000);
         account1.setFirstName("firstName");
         account1.setLastName("lastName");
-        account1.setUser(new User());
-        account1.setTransactionCount(0);
-        final Optional<Account> account = Optional.of(account1);
-        when(mockAccountRepository.findById("1")).thenReturn(account);
+        account1.setUser(user);
+        account1.setTransactionCount(1);
+        //final Optional<Account> account = Optional.of(account1);
+        when(mockAccountRepository.findById(account1.getId())).thenReturn(Optional.of(account1));
 
         final Transaction transaction = new Transaction();
         transaction.setId(1L);
 
         final Account account2 = new Account();
         account2.setId("2");
-        account2.setBalance(1000.0);
+        account2.setBalance(5);
         account2.setFirstName("firstName");
         account2.setLastName("lastName");
-        account2.setUser(new User());
-        account2.setTransactionCount(0);
+        account2.setUser(user);
+        account2.setTransactionCount(1);
+        when(mockAccountRepository.findById(account2.getId())).thenReturn(Optional.of(account2));
+
+        final TransferDto transferDto = new TransferDto();
+        transferDto.setTransactionType(TransactionType.TRANSFER);
+        transferDto.setAccountId(account1.getId());
+        transferDto.setAmount(100);
+        transferDto.setTransferToAccountId(account2.getId());
 
         transaction.setAccount(account1);
-        transaction.setAmount(100.0);
+        transaction.setAmount(100);
         transaction.setDescription("description");
         transaction.setTransactionType(TransactionType.TRANSFER);
-        transaction.setUser(new User());
-        transaction.setTransferToAccountId("2");
-        when(mockTransactionMapper.map2(any(TransferDto.class), any(Account.class), eq(new User()))).thenReturn(transaction);
+        transaction.setUser(user);
+        transaction.setTransferToAccountId(account2.getId());
+        when(mockTransactionMapper.map2(any(TransferDto.class), any(Account.class), eq(user))).thenReturn(transaction);
 
-        when(mockAuthService.getCurrentUser()).thenReturn(new User());
+        when(mockAuthService.getCurrentUser()).thenReturn(user);
 
         accountServiceUnderTest.transfer(transferDto);
 
@@ -184,36 +196,42 @@ class AccountServiceTest {
     @Test
     void testGetTransactions() {
 
-        final Transaction transaction = new Transaction();
-        transaction.setId(1L);
+        User user = new User();
+        user.setId(1L);
+
         final Account account = new Account();
         account.setId("account_id");
-        account.setBalance(1000.0);
+        account.setBalance(1000);
         account.setFirstName("firstName");
         account.setLastName("lastName");
-        account.setUser(new User());
-        account.setTransactionCount(0);
+        account.setUser(user);
+        account.setTransactionCount(1);
+
+        Transaction transaction = new Transaction();
         transaction.setAccount(account);
-        transaction.setAmount(100.0);
+        transaction.setAmount(100);
         transaction.setDescription("description");
         transaction.setTransactionType(TransactionType.WITHDRAWAL);
-        transaction.setUser(new User());
+        transaction.setUser(user);
         transaction.setTransferToAccountId("transferToAccountId");
+
         final Page<Transaction> transactions = new PageImpl<>(Collections.singletonList(transaction));
-        when(mockTransactionRepository.findTransactionsByAccount_Id(eq("account_id"), any(Pageable.class))).thenReturn(transactions);
+        when(mockTransactionRepository.findTransactionsByAccount_Id(eq(account.getId()), any(Pageable.class)))
+                .thenReturn(transactions);
 
 
         final TransactionsResponse transactionsResponse = new TransactionsResponse();
-        transactionsResponse.setAmount(100.0);
+        transactionsResponse.setAmount(100);
         transactionsResponse.setDescription("description");
         transactionsResponse.setTransactionType(TransactionType.WITHDRAWAL);
         transactionsResponse.setTransferToAccountId("transferToAccountId");
-        transactionsResponse.setUserId(1L);
+        transactionsResponse.setUserId(user.getId());
         transactionsResponse.setAccountId("accountId");
         final List<TransactionsResponse> transactionsResponses = Collections.singletonList(transactionsResponse);
-        when(mockTransactionMapper.entitiesToEntityDTOs(Collections.singletonList(new Transaction()))).thenReturn(transactionsResponses);
+        when(mockTransactionMapper.entitiesToEntityDTOs(Collections.singletonList(transaction))).thenReturn(transactionsResponses);
 
 
-        final Page<TransactionsResponse> result = accountServiceUnderTest.getTransactions("account_id", PageRequest.of(0, 1));
+        final Page<TransactionsResponse> result = accountServiceUnderTest.getTransactions("account_id",
+                PageRequest.of(0, 1));
     }
 }

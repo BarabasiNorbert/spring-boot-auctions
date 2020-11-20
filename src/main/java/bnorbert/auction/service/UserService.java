@@ -184,7 +184,7 @@ public class UserService {
         return !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
     }
 
-    //ON DELETE cascade(foreign keys) - ConstraintViolationException
+
     @Scheduled(cron = "0 0 1 * * ?")//At 01:00 am everyday.
     //@Scheduled(cron = "0 0 0 * * ?")//Every day at midnight - 12am
     public void removeNotActivatedUsers() {

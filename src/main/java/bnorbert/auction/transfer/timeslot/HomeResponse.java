@@ -11,7 +11,7 @@ public class HomeResponse {
     private String garageYearBuilt;
     private int garageCars;
     private int garageArea;
-    private double startingPrice;
+    private long startingPrice;
 
     public long getId() {
         return id;
@@ -93,11 +93,11 @@ public class HomeResponse {
         this.garageArea = garageArea;
     }
 
-    public double getStartingPrice() {
+    public long getStartingPrice() {
         return startingPrice;
     }
 
-    public void setStartingPrice(double startingPrice) {
+    public void setStartingPrice(long startingPrice) {
         this.startingPrice = startingPrice;
     }
 

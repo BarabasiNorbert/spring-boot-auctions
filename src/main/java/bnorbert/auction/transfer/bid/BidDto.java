@@ -3,13 +3,13 @@ package bnorbert.auction.transfer.bid;
 public class BidDto {
 
     private Long timeSlotId;
-    private double amount;
+    private long amount;
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
@@ -21,5 +21,11 @@ public class BidDto {
         this.timeSlotId = timeSlotId;
     }
 
-
+    @Override
+    public String toString() {
+        return "BidDto{" +
+                "timeSlotId=" + timeSlotId +
+                ", amount=" + amount +
+                '}';
+    }
 }

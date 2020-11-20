@@ -26,7 +26,7 @@ public class TimeTableController {
         this.timeTableService = timeTableService;
     }
 
-    @PostMapping("/solve")
+    @PostMapping("/solveTimeAndSpaceForEachHome")
     public void solve() {
         solverManager.solveAndListen(TimeTableService.SINGLETON_TIME_TABLE_ID,
                 timeTableService::findById,

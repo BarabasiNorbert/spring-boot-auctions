@@ -12,7 +12,7 @@ public class Account {
     @GenericGenerator(name = "uuid", strategy = "uuid")
     @Column(columnDefinition = "CHAR(32)")
     private String id;
-    private double balance;
+    private long balance;
     private String firstName;
     private String lastName;
     private Integer transactionCount = 0;
@@ -28,11 +28,11 @@ public class Account {
         this.id = id;
     }
 
-    public double getBalance() {
+    public long getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(long balance) {
         this.balance = balance;
     }
 

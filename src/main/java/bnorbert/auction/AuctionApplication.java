@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -24,20 +25,24 @@ import java.util.List;
 
 @EnableScheduling
 @SpringBootApplication
-public class AuctionApplication {//implements CommandLineRunner {
+public class AuctionApplication{ //implements CommandLineRunner {
 
-	//private static final Logger LOGGER = LoggerFactory.getLogger(AuctionApplication.class);
-	//private final HomeRepository homeRepository;
-//
-	//public AuctionApplication(HomeRepository homeRepository) {
-	//	this.homeRepository = homeRepository;
-	//}
+	//Step #1. Insert data from homes.txt
+/*
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuctionApplication.class);
+	private final HomeRepository homeRepository;
 
+	public AuctionApplication(HomeRepository homeRepository) {
+		this.homeRepository = homeRepository;
+	}
+ */
 	public static void main(String[] args) {
 		SpringApplication.run(AuctionApplication.class, args);
+
+
 	}
 
-	/*
+/*
 	@Override
 	@Transactional
 	public void run(String... args) {
@@ -56,10 +61,11 @@ public class AuctionApplication {//implements CommandLineRunner {
 		homeRepository.saveAll(homeList);
 
 	}
-
-	 */
+ */
 
 	/*
+
+	//Step #2. Insert time and space then hit solve. Make changes as needed.
 	@Value("${timeTable.demoData:SMALL}")
 	private DemoData demoData;
 
@@ -150,6 +156,8 @@ public class AuctionApplication {//implements CommandLineRunner {
 		LARGE
 	}
 
+
 	 */
+
 
 }

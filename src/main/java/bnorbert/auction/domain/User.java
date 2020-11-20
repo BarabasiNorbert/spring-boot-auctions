@@ -50,6 +50,16 @@ public class User  {
         timeSlot.setUser(this);
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<Home> homes = new HashSet<>();
+
+    public void addHome(Home home) {
+        homes.add(home);
+        home.setUser(this);
+    }
+
+
     public User() {
     }
 
@@ -157,6 +167,14 @@ public class User  {
 
     public void setTimeSlots(Set<TimeSlot> timeSlots) {
         this.timeSlots = timeSlots;
+    }
+
+    public Set<Home> getHomes() {
+        return homes;
+    }
+
+    public void setHomes(Set<Home> homes) {
+        this.homes = homes;
     }
 
     @Override

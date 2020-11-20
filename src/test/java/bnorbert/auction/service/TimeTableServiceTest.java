@@ -40,14 +40,15 @@ class TimeTableServiceTest {
     @Test
     void testFindById() {
 
-        final List<TimeSlot> timeSlots = Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
+        final List<TimeSlot> timeSlots = Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(10, 0, 0),
+                LocalTime.of(12, 0, 0)));
         when(mockTimeSlotRepository.findAll()).thenReturn(timeSlots);
 
         when(mockRoomRepository.findAll()).thenReturn(Collections.singletonList(new Room("name")));
 
-        final List<Home> homes = Collections.singletonList(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
+        final List<Home> homes = Collections.singletonList(new Home(1L, "neighborhood", 0, 0, "yearBuilt",
+                0, 0, "garageYearBuilt", 0, 0, 1000000));
         when(mockHomeRepository.findAll()).thenReturn(homes);
-
 
         final TimeTable result = timeTableServiceUnderTest.findById(1L);
     }
@@ -56,12 +57,14 @@ class TimeTableServiceTest {
     void testFindByIdThenThrowIllegalStateException() {
 
 
-        final List<TimeSlot> timeSlots = Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0)));
+        final List<TimeSlot> timeSlots = Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(10, 0, 0),
+                LocalTime.of(12, 0, 0)));
         when(mockTimeSlotRepository.findAll()).thenReturn(timeSlots);
 
         when(mockRoomRepository.findAll()).thenReturn(Collections.singletonList(new Room("name")));
 
-        final List<Home> homes = Collections.singletonList(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
+        final List<Home> homes = Collections.singletonList(new Home(0L, "neighborhood", 0, 0, "yearBuilt",
+                0, 0, "garageYearBuilt", 0, 0, 1000000));
         when(mockHomeRepository.findAll()).thenReturn(homes);
 
 
@@ -71,12 +74,21 @@ class TimeTableServiceTest {
     @Test
     void testSave() {
 
-        final TimeTable timeTable = new TimeTable(Collections.singletonList(new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(12, 0, 0), LocalTime.of(12, 0, 0))), Arrays.asList(new Room("name")), Arrays.asList(new Home(0L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
+        final TimeTable timeTable = new TimeTable(Collections.singletonList(
+                new TimeSlot(DayOfWeek.FRIDAY, LocalTime.of(10, 0, 0),
+                        LocalTime.of(12, 0, 0))),
+                Collections.singletonList(new Room("name")),
+                Collections.singletonList(new Home(0L, "neighborhood", 0, 0, "yearBuilt",
+                        0, 0, "garageYearBuilt", 0, 0, 50000)));
 
-        final Home home = new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0);
-        when(mockHomeRepository.save(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0))).thenReturn(home);
+        final Home home = new Home(1L, "neighborhood", 0, 0, "yearBuilt",
+                0, 0, "garageYearBuilt", 0, 0, 50000);
+        when(mockHomeRepository.save(new Home(1L, "neighborhood", 0, 0, "yearBuilt",
+                0, 0, "garageYearBuilt", 0, 0, 50000))).thenReturn(home);
 
         timeTableServiceUnderTest.save(timeTable);
 
     }
+
+
 }

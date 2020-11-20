@@ -1,5 +1,6 @@
 package bnorbert.auction.controller;
 
+import bnorbert.auction.domain.User;
 import bnorbert.auction.service.TimeSlotService;
 import bnorbert.auction.transfer.timeslot.HomeResponse;
 import bnorbert.auction.transfer.timeslot.TimeSlotsResponse;
@@ -37,13 +38,18 @@ class TimeSlotControllerTest {
     @Test
     void testGetTimeSlots() {
 
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@notnull.com");
+
         final TimeSlotsResponse timeSlotsResponse = new TimeSlotsResponse();
         timeSlotsResponse.setId(1L);
         timeSlotsResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        timeSlotsResponse.setStartTime(LocalTime.of(12, 0, 0));
+        timeSlotsResponse.setStartTime(LocalTime.of(11, 0, 0));
         timeSlotsResponse.setEndTime(LocalTime.of(12, 0, 0));
-        timeSlotsResponse.setUserId(1L);
-        timeSlotsResponse.setUserEmail("userEmail");
+        timeSlotsResponse.setUserId(user.getId());
+        timeSlotsResponse.setUserEmail(user.getEmail());
+
         final HomeResponse homeResponse = new HomeResponse();
         homeResponse.setId(1L);
         homeResponse.setNeighborhood("neighborhood");
@@ -55,24 +61,30 @@ class TimeSlotControllerTest {
         homeResponse.setGarageYearBuilt("garageYearBuilt");
         homeResponse.setGarageCars(0);
         homeResponse.setGarageArea(0);
+
         timeSlotsResponse.setHomes(new HashSet<>(Collections.singletonList(homeResponse)));
         final Page<TimeSlotsResponse> timeSlotsResponses = new PageImpl<>(Collections.singletonList(timeSlotsResponse));
-        when(mockTimeSlotService.getTimeSlots(any(Pageable.class))).thenReturn(timeSlotsResponses);
+        when(mockTimeSlotService.getTimeSlotsWithBids(any(Pageable.class))).thenReturn(timeSlotsResponses);
 
-        final ResponseEntity<Page<TimeSlotsResponse>> result = timeSlotControllerUnderTest.getTimeSlots(PageRequest.of(0, 1));
+        final ResponseEntity<Page<TimeSlotsResponse>> result = timeSlotControllerUnderTest.getTimeSlotsWithBids(PageRequest.of(0, 1));
 
     }
 
     @Test
     void testGetTimeSlotsWithZeroBids() {
 
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@notnull.com");
+
         final TimeSlotsResponse timeSlotsResponse = new TimeSlotsResponse();
         timeSlotsResponse.setId(20L);
         timeSlotsResponse.setDayOfWeek(DayOfWeek.FRIDAY);
         timeSlotsResponse.setStartTime(LocalTime.of(12, 0, 0));
         timeSlotsResponse.setEndTime(LocalTime.of(12, 0, 0));
-        timeSlotsResponse.setUserId(2L);
-        timeSlotsResponse.setUserEmail("userEmail");
+        timeSlotsResponse.setUserId(1L);
+        timeSlotsResponse.setUserEmail(user.getEmail());
+
         final HomeResponse homeResponse = new HomeResponse();
         homeResponse.setId(3L);
         homeResponse.setNeighborhood("neighborhood");
@@ -91,4 +103,9 @@ class TimeSlotControllerTest {
         final ResponseEntity<Page<TimeSlotsResponse>> result = timeSlotControllerUnderTest.getTimeSlotsWithZeroBids(PageRequest.of(0, 1));
 
     }
+
+
 }
+
+
+

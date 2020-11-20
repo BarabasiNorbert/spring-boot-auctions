@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -33,13 +34,13 @@ class UserControllerTest {
     void testCreateUser() {
 
         final SaveUserRequest request = new SaveUserRequest();
-        request.setEmail("email");
+        request.setEmail("email@notnull.com");
         request.setPassword("password");
-        request.setPasswordConfirm("passwordConfirm");
+        request.setPasswordConfirm("password");
 
         final UserResponse userResponse = new UserResponse();
         userResponse.setId(1L);
-        userResponse.setEmail("email");
+        userResponse.setEmail("email@notnull.com");
         userResponse.setPassword("password");
 
         final RoleResponse roleResponse = new RoleResponse();
@@ -56,6 +57,9 @@ class UserControllerTest {
     @Test
     void testGetUserId() {
 
+        User user = new User();
+        user.setId(1L);
+
         final UserResponse userResponse = new UserResponse();
         userResponse.setId(1L);
         userResponse.setEmail("email@gmail.com");
@@ -68,11 +72,14 @@ class UserControllerTest {
         when(mockUserService.getUserId(1L)).thenReturn(userResponse);
 
 
-        final ResponseEntity<UserResponse> result = userControllerUnderTest.getUserId(0L);
+        final ResponseEntity<UserResponse> result = userControllerUnderTest.getUserId(1L);
     }
 
     @Test
     void testConfirmUser() {
+
+        User user = new User();
+        user.setId(1L);
 
         final VerifyTokenRequest request = new VerifyTokenRequest();
         request.setVerificationToken("verificationToken");
@@ -114,8 +121,10 @@ class UserControllerTest {
 
     @Test
     void testGetUser() {
-        final ResponseEntity<User> expectedResult = new ResponseEntity<>(new User(), HttpStatus.CONTINUE);
-        when(mockUserService.getUser(1L)).thenReturn(new User());
+        User user = new User();
+        user.setId(1L);
+        final ResponseEntity<User> expectedResult = new ResponseEntity<>(user, HttpStatus.OK);
+        when(mockUserService.getUser(1L)).thenReturn(user);
 
         final ResponseEntity<User> result = userControllerUnderTest.getUser(1L);
         assertThat(result).isEqualTo(expectedResult);
@@ -126,7 +135,7 @@ class UserControllerTest {
 
         final ResetPasswordRequest request = new ResetPasswordRequest();
         request.setPassword("password");
-        request.setPasswordConfirm("passwordConfirm");
+        request.setPasswordConfirm("password");
         request.setVerificationToken("verificationToken");
 
         final UserResponse userResponse = new UserResponse();
@@ -146,9 +155,10 @@ class UserControllerTest {
 
     @Test
     void testDeleteUser() {
-        final ResponseEntity result = userControllerUnderTest.deleteUser(1L);
+        User user = new User();
+        user.setId(1L);
+        final ResponseEntity result = userControllerUnderTest.deleteUser(user.getId());
 
-        // Verify the results
         verify(mockUserService).deleteUser(1L);
     }
 }

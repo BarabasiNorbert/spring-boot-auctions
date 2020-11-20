@@ -43,7 +43,7 @@ public abstract class BidMapper {
     @Mapping(target = "garageArea", source = "home.garageArea")
     @Mapping(target = "startingPrice", source = "home.startingPrice")
     @Mapping(target = "createdDate", source = "bid.createdDate")
-    public abstract BidResponse mapToDto(Bid bid);
+    public abstract BidResponse mapToBidResponse(Bid bid);
 
 
     @Mapping(target = "id", source = "id")
@@ -66,7 +66,7 @@ public abstract class BidMapper {
     @Mapping(target = "startingPrice", source = "home.startingPrice")
     @Mapping(target = "createdDate", source = "bid.createdDate")
     //@Mapping(target = "duration", expression = "java(getDuration(bid))")
-    public abstract GetBidsResponse mapToDto2(Bid bid);
+    public abstract GetBidsResponse mapToBidsResponse(Bid bid);
 
     //String getDuration(Bid bid) {
     //    return TimeAgo.using(bid.getCreatedDate().toEpochMilli());

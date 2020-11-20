@@ -4,6 +4,7 @@ package bnorbert.auction.datareader;
 import bnorbert.auction.domain.Home;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -52,7 +53,7 @@ public class HomeReader implements Reader {
         String garageYearBuilt  = info[7];
         int garageCars  = Integer.parseInt(info[8]);
         int garageArea  = Integer.parseInt(info[9]);
-        double startingPrice = Double.parseDouble(info[10]);
+        long startingPrice = Long.parseLong(info[10]);
 
         if (!theHomes.containsKey(id)) {
             Home newHome = new Home(id, neighborhood, kitchen, lotArea, yearBuilt,fullBath, bedroom, garageYearBuilt, garageCars, garageArea, startingPrice);

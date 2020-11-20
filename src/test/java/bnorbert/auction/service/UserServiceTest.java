@@ -48,7 +48,7 @@ class UserServiceTest {
         request.setPassword("password");
         request.setPasswordConfirm("password");
 
-        when(mockUserRepository.findByEmail("email")).thenReturn(Optional.of(new User()));
+        when(mockUserRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(new User()));
         when(mockPasswordEncoder.encode("charSequence")).thenReturn("result");
         when(mockUserRepository.save(new User())).thenReturn(new User());
 
@@ -75,40 +75,34 @@ class UserServiceTest {
     }
 
     @Test
-    void testCreateUserThatEmailIsTaken() {
-
-        final SaveUserRequest request = new SaveUserRequest();
-        request.setEmail("email@gmail.com");
-        request.setPassword("password123D.");
-        request.setPasswordConfirm("password123D.");
-
-        when(mockUserRepository.findByEmail("email@gmail.com")).thenReturn(Optional.of(new User()));
-        when(mockPasswordEncoder.encode("charSequence")).thenReturn("result");
-        when(mockUserRepository.save(new User())).thenReturn(new User());
-
-        final UserResponse result = userServiceUnderTest.createUser(request);
-    }
-
-    @Test
     void testResendToken() {
-        final ResendTokenRequest request = new ResendTokenRequest();
-        request.setEmail("email");
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
 
-        when(mockUserRepository.findByEmail("email")).thenReturn(Optional.of(new User()));
-        when(mockUserRepository.save(new User())).thenReturn(new User());
+        final ResendTokenRequest request = new ResendTokenRequest();
+        request.setEmail(user.getEmail());
+
+        when(mockUserRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(mockUserRepository.save(user)).thenReturn(user);
 
         final UserResponse result = userServiceUnderTest.resendToken(request);
     }
 
     @Test
     void testConfirmUser() {
+
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
+
         final VerifyTokenRequest request = new VerifyTokenRequest();
         request.setVerificationToken("verificationToken");
 
-        final Optional<VerificationToken> verificationToken = Optional.of(new VerificationToken(new User()));
-        when(mockVerificationTokenRepository.findByVerificationToken("verificationToken")).thenReturn(verificationToken);
+        final Optional<VerificationToken> verificationToken = Optional.of(new VerificationToken(user));
+        when(mockVerificationTokenRepository.findByVerificationToken(request.getVerificationToken())).thenReturn(verificationToken);
 
-        when(mockUserRepository.save(new User())).thenReturn(new User());
+        when(mockUserRepository.save(user)).thenReturn(user);
 
         final UserResponse result = userServiceUnderTest.confirmUser(request);
 
@@ -116,33 +110,45 @@ class UserServiceTest {
 
     @Test
     void testGetUserId() {
-        when(mockUserRepository.findById(1L)).thenReturn(Optional.of(new User()));
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
 
-        final UserResponse result = userServiceUnderTest.getUserId(1L);
+        when(mockUserRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        final UserResponse result = userServiceUnderTest.getUserId(user.getId());
 
     }
 
     @Test
     void testGetUser() {
-        final User expectedResult = new User();
-        when(mockUserRepository.findById(0L)).thenReturn(Optional.of(new User()));
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
 
-        final User result = userServiceUnderTest.getUser(0L);
-        assertThat(result).isEqualTo(expectedResult);
+        when(mockUserRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        final User result = userServiceUnderTest.getUser(user.getId());
+        assertThat(result).isEqualTo(user);
     }
 
     @Test
     void testResetPassword() {
+
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
+
         final ResetPasswordRequest request = new ResetPasswordRequest();
         request.setPassword("password");
-        request.setPasswordConfirm("passwordConfirm");
+        request.setPasswordConfirm("password");
         request.setVerificationToken("verificationToken");
 
-        final Optional<VerificationToken> verificationToken = Optional.of(new VerificationToken(new User()));
+        final Optional<VerificationToken> verificationToken = Optional.of(new VerificationToken(user));
         when(mockVerificationTokenRepository.findByVerificationToken("verificationToken")).thenReturn(verificationToken);
 
         when(mockPasswordEncoder.encode("charSequence")).thenReturn("result");
-        when(mockUserRepository.save(new User())).thenReturn(new User());
+        when(mockUserRepository.save(user)).thenReturn(user);
 
 
         final UserResponse result = userServiceUnderTest.resetPassword(request);
@@ -150,31 +156,22 @@ class UserServiceTest {
 
     @Test
     void testDeleteUser() {
-        userServiceUnderTest.deleteUser(1L);
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
 
-        // Verify the results
+        userServiceUnderTest.deleteUser(user.getId());
+
         verify(mockUserRepository).deleteById(1L);
     }
 
     @Test
-    void testGetCurrentUser() {
-        final User expectedResult = new User();
-        when(mockUserRepository.findByEmail("email")).thenReturn(Optional.of(new User()));
-
-        final User result = userServiceUnderTest.getCurrentUser();
-        assertThat(result).isEqualTo(expectedResult);
-    }
-
-    @Test
-    void testIsLoggedIn() {
-
-        final boolean result = userServiceUnderTest.isLoggedIn();
-        assertTrue(result);
-    }
-
-    @Test
     void testRemoveNotActivatedUsers() {
-        when(mockUserRepository.findAllByEnabledIsFalseAndCreatedDateBefore(Instant.ofEpochSecond(0L))).thenReturn(Collections.singletonList(new User()));
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("email@atnotnull.com");
+
+        when(mockUserRepository.findAllByEnabledIsFalseAndCreatedDateBefore(Instant.now())).thenReturn(Collections.singletonList(user));
         userServiceUnderTest.removeNotActivatedUsers();
 
         verify(mockUserRepository).delete(any(User.class));

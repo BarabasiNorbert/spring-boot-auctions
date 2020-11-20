@@ -11,18 +11,23 @@ import bnorbert.auction.transfer.account.AccountDto;
 import bnorbert.auction.transfer.account.TransactionDto;
 import bnorbert.auction.transfer.account.TransactionsResponse;
 import bnorbert.auction.transfer.account.TransferDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static bnorbert.auction.domain.TransactionType.*;
 
 @Service
 public class AccountService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
@@ -41,61 +46,71 @@ public class AccountService {
     }
 
     @Transactional
-    public void openAccount(AccountDto accountDto) {
-        Account account = accountMapper.map(accountDto, authService.getCurrentUser());
+    public void openAccount(AccountDto request) {
+        Account account = accountMapper.map(request, authService.getCurrentUser());
         accountRepository.save(account);
     }
 
+    public Account getDueDiligence(Long user_id){
+        LOGGER.info("Retrieving account for user: {}", user_id);
+        return accountRepository.findTopByUser_IdOrderByBalanceDesc(user_id)
+                .orElseThrow((EntityNotFoundException::new));
+    }
 
     @Transactional
-    public void depositOrWithdraw(TransactionDto transactionDto) {
-         Account account = accountRepository
-                .findById(transactionDto.getAccountId()).orElseThrow(() ->
-                         new ResourceNotFoundException("Account with id ("
-                                 + transactionDto.getAccountId() + ") not found"));
+    public void depositOrWithdraw(TransactionDto request) {
+        Account account = accountRepository
+                .findById(request.getAccountId()).orElseThrow(() ->
+                        new ResourceNotFoundException("Account with id ("
+                                + request.getAccountId() + ") not found"));
+        Transaction transaction = transactionMapper.map(request, account, authService.getCurrentUser());
+        transactionType(request, account, transaction);
 
-         Transaction transaction = transactionMapper.map(transactionDto, account, authService.getCurrentUser());
+        accountRepository.save(account);
+        transactionRepository.save(transaction);
+    }
 
-        if (DEPOSIT.equals(transactionDto.getTransactionType())) {
+    private void transactionType(TransactionDto request, Account account, Transaction transaction) {
+        if (DEPOSIT.equals(request.getTransactionType())) {
             account.setBalance(account.getBalance() + transaction.getAmount());
             account.setTransactionCount(account.getTransactionCount() + 1);
-        }else if(WITHDRAWAL.equals(transactionDto.getTransactionType())) {
+        }else if(WITHDRAWAL.equals(request.getTransactionType())) {
             account.setBalance(account.getBalance() - transaction.getAmount());
-            account.setTransactionCount(account.getTransactionCount() - 1);
+            account.setTransactionCount(account.getTransactionCount() + 1);
             if (account.getBalance() <= 0)
                 throw new ResourceNotFoundException("err");
-        }else throw new ResourceNotFoundException("TransactionType issue");
-
-         accountRepository.save(account);
-         transactionRepository.save(transaction);
+        }else throw new ResourceNotFoundException(request.getTransactionType() + "TransactionType issue");
     }
 
 
     @Transactional
-    public void transfer(TransferDto transferDto) {
+    public void transfer(TransferDto request) {
         Account account = accountRepository
-                .findById(transferDto.getAccountId()).orElseThrow(() ->
+                .findById(request.getAccountId()).orElseThrow(() ->
                         new ResourceNotFoundException("Account with id ("
-                                + transferDto.getAccountId() + ") not found"));
+                                + request.getAccountId() + ") not found"));
 
         Account toAccount = accountRepository
-                .findById(transferDto.getTransferToAccountId()).orElseThrow(() ->
+                .findById(request.getTransferToAccountId()).orElseThrow(() ->
                         new ResourceNotFoundException("Account with id ("
-                                + transferDto.getTransferToAccountId() + ") not found"));
+                                + request.getTransferToAccountId() + ") not found"));
 
 
-        Transaction transaction = transactionMapper.map2(transferDto, account, authService.getCurrentUser());
-        if (TRANSFER.equals(transferDto.getTransactionType())) {
+        Transaction transaction = transactionMapper.map2(request, account, authService.getCurrentUser());
+        if (TRANSFER.equals(request.getTransactionType())) {
 
             account.setBalance(account.getBalance() - transaction.getAmount());
             if (account.getBalance() <= 0)
                 throw new ResourceNotFoundException("err");
             toAccount.setBalance(toAccount.getBalance() + transaction.getAmount());
 
+            account.setTransactionCount(account.getTransactionCount() + 1);
+            toAccount.setTransactionCount(toAccount.getTransactionCount() + 1);
+
             accountRepository.save(toAccount);
             accountRepository.save(account);
 
-        }else throw new ResourceNotFoundException("TransactionType issue");
+        }else throw new ResourceNotFoundException(request.getTransactionType()+ "TransactionType issue");
 
         transactionRepository.save(transaction);
     }

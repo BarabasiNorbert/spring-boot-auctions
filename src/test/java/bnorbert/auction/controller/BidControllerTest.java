@@ -41,13 +41,12 @@ class BidControllerTest {
     void testCreateBid() {
 
         final BidDto bidDto = new BidDto();
-        bidDto.setAmount(1000.0);
+        bidDto.setAmount(1000);
         bidDto.setTimeSlotId(1L);
 
         final ResponseEntity<Void> result = bidControllerUnderTest.createBid(bidDto);
 
-
-        verify(mockBidService).save(any(BidDto.class));
+        verify(mockBidService).bidOnTheFirstHomeFromThatTimeslot(any(BidDto.class));
     }
 
     @Test
@@ -56,13 +55,13 @@ class BidControllerTest {
         final BidResponse bidResponse = new BidResponse();
         bidResponse.setId(1L);
         bidResponse.setEmail("email@gmail.com");
-        bidResponse.setAmount(30000.0);
+        bidResponse.setAmount(30000);
         bidResponse.setUserId(1L);
         bidResponse.setTimeSlotId(1L);
         bidResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        bidResponse.setStartTime(LocalTime.of(12, 0, 0));
+        bidResponse.setStartTime(LocalTime.of(10, 0, 0));
         bidResponse.setEndTime(LocalTime.of(12, 0, 0));
-        bidResponse.setHomeId(2L);
+        bidResponse.setHomeId(1L);
         bidResponse.setNeighborhood("neighborhood");
         when(mockBidService.getWinner(1L)).thenReturn(bidResponse);
 
@@ -76,10 +75,10 @@ class BidControllerTest {
         final GetBidsResponse getBidsResponse = new GetBidsResponse();
         getBidsResponse.setId(1L);
         getBidsResponse.setEmail("email");
-        getBidsResponse.setAmount(3000.0);
+        getBidsResponse.setAmount(3000);
         getBidsResponse.setUserId(3L);
         getBidsResponse.setDayOfWeek(DayOfWeek.FRIDAY);
-        getBidsResponse.setStartTime(LocalTime.of(12, 0, 0));
+        getBidsResponse.setStartTime(LocalTime.of(11, 0, 0));
         getBidsResponse.setEndTime(LocalTime.of(12, 0, 0));
         getBidsResponse.setHomeId(2L);
         getBidsResponse.setNeighborhood("neighborhood");
@@ -98,7 +97,7 @@ class BidControllerTest {
         final GetBidsResponse getBidsResponse = new GetBidsResponse();
         getBidsResponse.setId(1L);
         getBidsResponse.setEmail("email");
-        getBidsResponse.setAmount(200.0);
+        getBidsResponse.setAmount(200);
         getBidsResponse.setUserId(1L);
         getBidsResponse.setDayOfWeek(DayOfWeek.FRIDAY);
         getBidsResponse.setStartTime(LocalTime.of(12, 0, 0));

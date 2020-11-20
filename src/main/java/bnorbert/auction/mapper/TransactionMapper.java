@@ -30,11 +30,11 @@ public abstract class TransactionMapper {
     public abstract Transaction map2(TransferDto transferDto, Account account, User user);
 
 
-    @Mapping(target = "amount", source = "transaction.amount")
-    @Mapping(target = "description", source = "transaction.description")
-    @Mapping(target = "userId", source = "user.id")
+    //@Mapping(target = "amount", source = "transaction.amount")
+    //@Mapping(target = "description", source = "transaction.description")
+    @Mapping(target = "userId", source = "user.id")//#manytoone
     @Mapping(target = "accountId", source = "account.id")
-    public abstract TransactionsResponse mapToDto(Transaction transaction);
+    public abstract TransactionsResponse mapToTransactionResponse(Transaction transaction);
 
     public abstract List<TransactionsResponse> entitiesToEntityDTOs(List<Transaction> transactions);
 }

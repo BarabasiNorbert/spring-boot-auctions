@@ -6,7 +6,7 @@ public class TransferDto {
 
     private TransactionType transactionType;
     private String accountId;
-    private double amount;
+    private long amount;
     private String transferToAccountId;
 
     public TransactionType getTransactionType() {
@@ -25,11 +25,11 @@ public class TransferDto {
         this.accountId = accountId;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

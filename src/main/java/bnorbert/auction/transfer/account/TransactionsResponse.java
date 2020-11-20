@@ -4,18 +4,18 @@ import bnorbert.auction.domain.TransactionType;
 
 public class TransactionsResponse {
 
-    private double amount;
+    private long amount;
     private String description;
     private TransactionType transactionType;
     private String transferToAccountId;
     private Long userId;
     private String accountId;
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

@@ -39,11 +39,10 @@ class HomeServiceTest {
     @Test
     void testGetHome() {
 
-        final Home expectedResult = new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0);
+        final Home expectedResult = new Home(1L, "neighborhood", 0, 0, "yearBuilt",
+                1, 3, "garageYearBuilt", 2, 0, 600000);
 
-        final Optional<Home> home = Optional.of(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        when(mockHomeRepository.findTopByTimeSlotId(1L)).thenReturn(home);
-
+        when(mockHomeRepository.findTopByTimeSlotId(1L)).thenReturn(Optional.of(expectedResult));
 
         final Home result = homeServiceUnderTest.getHome(1L);
         assertThat(result).isEqualTo(expectedResult);
@@ -52,10 +51,10 @@ class HomeServiceTest {
     @Test
     void testGetHomeThenReturnResourceNotFound() {
 
-        final Home expectedResult = new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0);
+        final Home expectedResult = new Home(1L, "neighborhood", 0, 0, "yearBuilt",
+                0, 0, "garageYearBuilt", 0, 0, 100000);
 
-        final Optional<Home> home = Optional.of(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0));
-        when(mockHomeRepository.findTopByTimeSlotId(1L)).thenReturn(home);
+        when(mockHomeRepository.findTopByTimeSlotId(1L)).thenReturn(Optional.of(expectedResult));
 
 
         final Home result = homeServiceUnderTest.getHome(2L);
@@ -65,62 +64,35 @@ class HomeServiceTest {
     @Test
     void testGetHomes() {
 
-        final Page<Home> homes = new PageImpl<>(Collections.singletonList(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
+        final Page<Home> homes = new PageImpl<>(Collections.singletonList(new Home(1L, "neighborhood", 0, 0,
+                "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 500000)));
         when(mockHomeRepository.findByNeighborhoodContaining(eq("neighborhood"), any(Pageable.class))).thenReturn(homes);
 
 
-        final Page<Home> homes1 = new PageImpl<>(Collections.singletonList(new Home(2L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
+        final Page<Home> homes1 = new PageImpl<>(Collections.singletonList(new Home(2L, "neighborhood", 0, 0,
+                "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 400000)));
         when(mockHomeRepository.findAll(any(Pageable.class))).thenReturn(homes1);
 
 
         final HomeResponse homeResponse = new HomeResponse();
         homeResponse.setId(1L);
         homeResponse.setNeighborhood("neighborhood");
-        homeResponse.setKitchen(0);
-        homeResponse.setLotArea(0);
+        homeResponse.setKitchen(2);
+        homeResponse.setLotArea(8532);
         homeResponse.setYearBuilt("yearBuilt");
-        homeResponse.setFullBath(0);
-        homeResponse.setBedroom(0);
+        homeResponse.setFullBath(2);
+        homeResponse.setBedroom(3);
         homeResponse.setGarageYearBuilt("garageYearBuilt");
-        homeResponse.setGarageCars(0);
-        homeResponse.setGarageArea(0);
+        homeResponse.setGarageCars(2);
+        homeResponse.setGarageArea(552);
         final List<HomeResponse> homeResponses = Collections.singletonList(homeResponse);
-        when(mockHomeMapper.entitiesToEntityDTOs(Collections.singletonList(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)))).thenReturn(homeResponses);
+        when(mockHomeMapper.entitiesToEntityDTOs(Collections.singletonList(new Home(1L, "neighborhood", 0, 0,
+                "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 500000))))
+                .thenReturn(homeResponses);
 
 
         final Page<HomeResponse> result = homeServiceUnderTest.getHomes("neighborhood", PageRequest.of(0, 1));
 
     }
-
-    @Test
-    void testGetHomesWithoutPartialName() {
-
-        final Page<Home> homes = new PageImpl<>(Collections.singletonList(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
-        when(mockHomeRepository.findByNeighborhoodContaining(eq("neighborhood"), any(Pageable.class))).thenReturn(homes);
-
-
-        final Page<Home> homes1 = new PageImpl<>(Collections.singletonList(new Home(2L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)));
-        when(mockHomeRepository.findAll(any(Pageable.class))).thenReturn(homes1);
-
-
-        final HomeResponse homeResponse = new HomeResponse();
-        homeResponse.setId(1L);
-        homeResponse.setNeighborhood("neighborhood");
-        homeResponse.setKitchen(0);
-        homeResponse.setLotArea(0);
-        homeResponse.setYearBuilt("yearBuilt");
-        homeResponse.setFullBath(0);
-        homeResponse.setBedroom(0);
-        homeResponse.setGarageYearBuilt("garageYearBuilt");
-        homeResponse.setGarageCars(0);
-        homeResponse.setGarageArea(0);
-        final List<HomeResponse> homeResponses = Collections.singletonList(homeResponse);
-        when(mockHomeMapper.entitiesToEntityDTOs(Collections.singletonList(new Home(1L, "neighborhood", 0, 0, "yearBuilt", 0, 0, "garageYearBuilt", 0, 0, 0.0)))).thenReturn(homeResponses);
-
-
-        final Page<HomeResponse> result = homeServiceUnderTest.getHomes(null , PageRequest.of(0, 1));
-
-    }
-
 
 }

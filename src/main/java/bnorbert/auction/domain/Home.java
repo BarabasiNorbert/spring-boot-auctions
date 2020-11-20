@@ -24,7 +24,7 @@ public class Home {
     private String garageYearBuilt;
     private int garageCars;
     private int garageArea;
-    private double startingPrice;
+    private long startingPrice;
 
     @PlanningVariable(valueRangeProviderRefs = "timeSlotRange")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,11 +34,14 @@ public class Home {
     @ManyToOne(fetch = FetchType.LAZY)
     private Room room;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
     public Home() {
     }
 
     public Home(long id, String neighborhood, int kitchen, int lotArea, String yearBuilt, int fullBath,
-                int bedroom, String garageYearBuilt, int garageCars, int garageArea, double startingPrice) {
+                int bedroom, String garageYearBuilt, int garageCars, int garageArea, long startingPrice) {
         this.id = id;
         this.neighborhood = neighborhood;
         this.kitchen = kitchen;
@@ -132,11 +135,11 @@ public class Home {
         this.garageArea = garageArea;
     }
 
-    public double getStartingPrice() {
+    public long getStartingPrice() {
         return startingPrice;
     }
 
-    public void setStartingPrice(double startingPrice) {
+    public void setStartingPrice(long startingPrice) {
         this.startingPrice = startingPrice;
     }
 
@@ -154,6 +157,14 @@ public class Home {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

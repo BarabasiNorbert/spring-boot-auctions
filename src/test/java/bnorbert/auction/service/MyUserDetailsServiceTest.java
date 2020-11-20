@@ -1,12 +1,12 @@
 package bnorbert.auction.service;
 
 import bnorbert.auction.domain.User;
+import bnorbert.auction.exception.ResourceNotFoundException;
 import bnorbert.auction.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
@@ -29,17 +29,30 @@ class MyUserDetailsServiceTest {
 
     @Test
     void testLoadUserByUsername() {
-        when(mockUserRepository.findByEmail("email@gmail.com")).thenReturn(Optional.of(new User()));
+        User user = new User();
+        user.setEmail("user@atnotnull.com");
+        user.setCredentialsNonExpired(true);
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setEnabled(true);
 
-        final UserDetails result = myUserDetailsServiceUnderTest.loadUserByUsername("email@gmail.com");
+        when(mockUserRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        final UserDetails result = myUserDetailsServiceUnderTest.loadUserByUsername(user.getEmail());
     }
 
     @Test
     void testLoadUserByUsername_ThrowsUsernameNotFoundException() {
-        when(mockUserRepository.findByEmail("email@gmail.com")).thenReturn(Optional.of(new User()));
 
-        assertThatThrownBy(() -> {
-            myUserDetailsServiceUnderTest.loadUserByUsername("email@gmail.com");
-        }).isInstanceOf(UsernameNotFoundException.class).hasMessageContaining("message");
+        User user = new User();
+        user.setEmail("user@atnotnull.com");
+        user.setCredentialsNonExpired(true);
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setEnabled(true);
+
+        when(mockUserRepository.findByEmail("user@gmail.com")).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> myUserDetailsServiceUnderTest.loadUserByUsername("user@gmail.com")).isInstanceOf(ResourceNotFoundException.class).hasMessageContaining("message");
     }
 }

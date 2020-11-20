@@ -27,13 +27,18 @@ public class BidController {
 
     @PostMapping
     public ResponseEntity<Void> createBid(@RequestBody BidDto bidDto) {
-        bidService.save(bidDto);
+        bidService.bidOnTheFirstHomeFromThatTimeslot(bidDto);
         return new ResponseEntity<>(CREATED);
     }
 
     @GetMapping("/getWinner{timeSlot_Id}")
     public ResponseEntity<BidResponse> getWinner(@PathVariable Long timeSlot_Id) {
         return status(HttpStatus.OK).body(bidService.getWinner(timeSlot_Id));
+    }
+
+    @GetMapping("/getWinnerPageable{timeSlot_Id}")
+    public ResponseEntity<Page<BidResponse>> getWinnerPageable(@PathVariable Long timeSlot_Id) {
+        return status(HttpStatus.OK).body(bidService.getWinnerPageable(timeSlot_Id));
     }
 
     @GetMapping("/getBids")

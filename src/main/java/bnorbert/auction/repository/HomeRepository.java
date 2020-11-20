@@ -11,6 +11,8 @@ public interface HomeRepository extends JpaRepository<Home, Long> {
 
     Optional<Home> findTopByTimeSlotId(Long timeSlot_id);
 
+    Page<Home> findTopByTimeSlotId(Long timeSlot_id, Pageable pageable);
+
     Page<Home> findByNeighborhoodContaining(String neighborhood, Pageable pageable);
 
     @Override

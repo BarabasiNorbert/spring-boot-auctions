@@ -26,7 +26,7 @@ public abstract class HomeMapper {
     @Mapping(target = "garageCars", source = "home.garageCars")
     @Mapping(target = "garageArea", source = "home.garageArea")
     @Mapping(target = "startingPrice", source = "home.startingPrice")
-    public abstract HomeResponse mapToDto(Home home);
+    public abstract HomeResponse mapToHomeResponse(Home home);
 
     public abstract List<HomeResponse> entitiesToEntityDTOs(List<Home> homes);
 }

@@ -7,7 +7,7 @@ import java.time.LocalTime;
 public class BidResponse {
     private Long id;
     private String email;
-    private double amount;
+    private long amount;
     private Long userId;
     private Long timeSlotId;
     private DayOfWeek dayOfWeek;
@@ -42,11 +42,11 @@ public class BidResponse {
         this.email = email;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

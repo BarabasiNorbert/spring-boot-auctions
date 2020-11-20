@@ -6,7 +6,7 @@ public class TransactionDto {
 
     private TransactionType transactionType;
     private String accountId;
-    private double amount;
+    private long amount;
 
     public TransactionType getTransactionType() {
         return transactionType;
@@ -24,11 +24,11 @@ public class TransactionDto {
         this.accountId = accountId;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 }

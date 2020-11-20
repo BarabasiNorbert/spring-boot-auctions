@@ -6,10 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.http.ResponseEntity.status;
 
 @CrossOrigin
 @RestController
@@ -27,5 +26,10 @@ public class HomeController {
             Pageable pageable) {
         Page<HomeResponse> timeSlot = homeService.getHomes(partialName, pageable);
         return new ResponseEntity<>(timeSlot, HttpStatus.OK);
+    }
+
+    @GetMapping("/getWinnerPageable{timeSlot_Id}")
+    public ResponseEntity<Page<HomeResponse>> getHomesPageable(@PathVariable Long timeSlot_Id) {
+        return status(HttpStatus.OK).body(homeService.getHomeForTimeslotId(timeSlot_Id));
     }
 }

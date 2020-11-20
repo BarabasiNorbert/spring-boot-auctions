@@ -8,7 +8,7 @@ public class GetBidsResponse {
 
     private Long id;
     private String email;
-    private double amount;
+    private long amount;
     private Long userId;
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
@@ -43,11 +43,11 @@ public class GetBidsResponse {
         this.email = email;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

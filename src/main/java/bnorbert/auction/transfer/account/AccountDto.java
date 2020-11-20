@@ -3,17 +3,17 @@ package bnorbert.auction.transfer.account;
 import bnorbert.auction.exception.ResourceNotFoundException;
 
 public class AccountDto {
-    private double balance;
+    private long balance;
     private String firstName;
     private String lastName;
 
-    public double getBalance() {
+    public long getBalance() {
         if (balance <= 0){
             throw new ResourceNotFoundException("One is minimum minimorum");
         }else return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(long balance) {
         this.balance = balance;
     }
 
